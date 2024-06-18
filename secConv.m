@@ -17,16 +17,20 @@ function y = secConv(x, h, L, method)
             y = [];
             % Pad x with zeros at the beginning to handle the initial overlap
             x = [zeros(1, M - 1), x];
-            num_seg = ceil((length(x) - M + 1) / L);
+            num_seg = ceil((length(x)) / L);
+            disp(num_seg)
             for k = 1:num_seg
-                x_segment = x(((k-1)*L + 1) : ((k-1)*L + N));
-                y_segment = conv(x_segment, h);
-                if k ~= num_seg
-                    y = [y, y_segment(M:end-M+1)];
-                else
-                    y = [y, y_segment(M:end)];
+                x_segment = x(((k-1)*L + 1) : min(((k-1)*L + N), end));
+                if length(x_segment) ~= N
+                    x_segment = [x_segment zeros(1, N-length(x_segment))];
                 end
+                y_segment = conv(x_segment, h);
+                y = [y y_segment(M:end-M+1)];
             end
+
+            %remove zeros
+            y = y(1:length(x));
+            
         case 'overlap_add'
             % Overlap-Add Method
             y = zeros(1, length(x) + M - 1);
